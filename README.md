@@ -1,71 +1,61 @@
 # aratio-gen
 
-A Node.js TypeScript CLI tool to generate media assets with various aspect ratios commonly used in ads and apps.
+CLI tool for generating placeholder images with common aspect ratios used in digital advertising and applications.
 
 ## Features
 
-- 🎨 Generate images with common aspect ratios (9:16, 2:3, 3:4, 4:5, 1:1, 4:3, 3:2, 16:9)
-- 🎯 Interactive wizard-like CLI experience
-- 🌈 Randomized pixel colors for each image
-- 📝 Aspect ratio labels overlaid on images
-- 🖼️ Multiple image format support (PNG, JPEG, GIF, BMP, TIFF)
-- 📦 Batch generation of multiple assets per aspect ratio
-- 🔧 Customizable base width for all images
-- 📁 Organized file naming: `aratio-gen_<aspect_ratio>_<dimensions>_<index>.<format>`
+- Generate images with standard aspect ratios: 9:16, 2:3, 3:4, 4:5, 1:1, 4:3, 3:2, 16:9
+- Interactive command-line interface
+- Randomized pixel patterns for visual distinction
+- Large aspect ratio labels for easy identification
+- Support for PNG, JPEG, GIF, BMP, and TIFF formats
+- Batch generation capabilities (1-100 images per aspect ratio)
+- Configurable output dimensions
 
 ## Installation
 
 ```bash
-# Clone the repository
 git clone <repository-url>
 cd aratio-gen
-
-# Install dependencies
 npm install
-
-# Build the project
 npm run build
 ```
 
 ## Usage
 
-### Run the CLI
+Run the interactive CLI:
 
 ```bash
 npm start
-# or
+```
+
+Or directly:
+
+```bash
 node dist/index.js
 ```
 
-### Development Mode
+## Interactive Options
+
+1. **Aspect Ratios** - Select one or more ratios
+2. **Quantity** - Number of images per ratio (1-100)
+3. **Format** - Image format (PNG, JPEG, GIF, BMP, TIFF)
+4. **Base Width** - Width in pixels (100-4000)
+5. **Output Directory** - Destination folder
+
+## Output
+
+Files are named: `aratio-gen_<aspect-ratio>_<index>.<format>`
+
+Example: `aratio-gen_16x9_1.png`
+
+## Development
 
 ```bash
-npm run dev
+npm run dev    # Run with ts-node
+npm run build  # Compile TypeScript
+npm run clean  # Remove build artifacts
 ```
-
-### Interactive Prompts
-
-The CLI will guide you through:
-
-1. **Select aspect ratios** - Choose one or more aspect ratios to generate
-2. **Number of assets** - Specify how many images per aspect ratio (1-100)
-3. **Image format** - Choose from PNG, JPEG, GIF, BMP, or TIFF
-4. **Base width** - Set the width in pixels (100-4000px)
-5. **Output directory** - Specify where to save generated images
-
-## Example Output
-
-Generated files follow this naming pattern:
-- `aratio-gen_9x16_800x1422_1.png`
-- `aratio-gen_1x1_800x800_1.png`
-- `aratio-gen_16x9_800x450_1.png`
-
-## Scripts
-
-- `npm run build` - Compile TypeScript to JavaScript
-- `npm run dev` - Run in development mode with ts-node
-- `npm start` - Run the compiled CLI
-- `npm run clean` - Remove compiled files
 
 ## Requirements
 
@@ -74,4 +64,4 @@ Generated files follow this naming pattern:
 
 ## License
 
-MIT# aratio-gen
+MIT
