@@ -14,6 +14,21 @@ CLI tool for generating placeholder images with common aspect ratios used in dig
 
 ## Installation
 
+### Using npx (no installation required)
+
+```bash
+npx aratio-gen
+```
+
+### Global installation
+
+```bash
+npm install -g aratio-gen
+aratio-gen
+```
+
+### Local development
+
 ```bash
 git clone <repository-url>
 cd aratio-gen
@@ -23,16 +38,16 @@ npm run build
 
 ## Usage
 
-Run the interactive CLI:
+After installation, run:
 
 ```bash
-npm start
+aratio-gen
 ```
 
-Or directly:
+Or use directly without installation:
 
 ```bash
-node dist/index.js
+npx aratio-gen
 ```
 
 ## Interactive Options
