@@ -1,15 +1,16 @@
 # aratio-gen
 
-CLI tool for generating placeholder images with common aspect ratios used in digital advertising and applications.
+CLI tool for generating placeholder images and videos with common aspect ratios used in digital advertising and applications.
 
 ## Features
 
-- Generate images with standard aspect ratios: 9:16, 2:3, 3:4, 4:5, 1:1, 4:3, 3:2, 16:9
+- Generate images and videos with standard aspect ratios: 9:16, 2:3, 3:4, 4:5, 1:1, 4:3, 3:2, 16:9
 - Interactive command-line interface
 - Randomized pixel patterns for visual distinction
 - Large aspect ratio labels for easy identification
-- Support for PNG, JPEG, GIF, BMP, and TIFF formats
-- Batch generation capabilities (1-100 images per aspect ratio)
+- **Image formats**: PNG, JPEG, GIF, BMP, and TIFF
+- **Video formats**: MP4 with configurable duration (1-10 seconds)
+- Batch generation capabilities (1-100 items per aspect ratio)
 - Configurable output dimensions
 
 ## Installation
@@ -52,17 +53,21 @@ npx aratio-gen
 
 ## Interactive Options
 
-1. **Aspect Ratios** - Select one or more ratios
-2. **Quantity** - Number of images per ratio (1-100)
-3. **Format** - Image format (PNG, JPEG, GIF, BMP, TIFF)
-4. **Base Width** - Width in pixels (100-4000)
-5. **Output Directory** - Destination folder
+1. **Media Type** - Choose between image or video generation
+2. **Aspect Ratios** - Select one or more ratios
+3. **Quantity** - Number of items per ratio (1-100)
+4. **Format** - Image format (PNG, JPEG, GIF, BMP, TIFF) or Video (MP4)
+5. **Base Width** - Width in pixels (100-4000)
+6. **Duration** (Video only) - Length in seconds (1-10)
+7. **Output Directory** - Destination folder
 
 ## Output
 
 Files are named: `aratio-gen_<aspect-ratio>_<index>.<format>`
 
-Example: `aratio-gen_16x9_1.png`
+Examples: 
+- Images: `aratio-gen_16x9_1.png`
+- Videos: `aratio-gen_9x16_1.mp4`
 
 ## Development
 
