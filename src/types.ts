@@ -9,12 +9,20 @@ export interface ImageFormat {
   mimeType: string;
 }
 
+export interface VideoFormat {
+  extension: string;
+  mimeType: string;
+}
+
 export interface GenerationOptions {
   aspectRatios: AspectRatio[];
   numberOfAssets: number;
-  format: ImageFormat;
+  format: ImageFormat | VideoFormat;
   baseWidth: number;
   outputDir: string;
+  mediaType: 'image' | 'video';
+  videoDuration?: number;
+  videoFps?: number;
 }
 
 export const PRESET_ASPECT_RATIOS: AspectRatio[] = [
@@ -34,4 +42,10 @@ export const IMAGE_FORMATS: Record<string, ImageFormat> = {
   GIF: { extension: 'gif', mimeType: 'image/gif' },
   BMP: { extension: 'bmp', mimeType: 'image/bmp' },
   TIFF: { extension: 'tiff', mimeType: 'image/tiff' },
+};
+
+export const VIDEO_FORMATS: Record<string, VideoFormat> = {
+  MP4: { extension: 'mp4', mimeType: 'video/mp4' },
+  WEBM: { extension: 'webm', mimeType: 'video/webm' },
+  AVI: { extension: 'avi', mimeType: 'video/x-msvideo' },
 };

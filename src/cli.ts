@@ -3,21 +3,36 @@ import chalk from 'chalk';
 import ora from 'ora';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { PRESET_ASPECT_RATIOS, IMAGE_FORMATS, AspectRatio, ImageFormat, GenerationOptions } from './types.js';
+import { PRESET_ASPECT_RATIOS, IMAGE_FORMATS, VIDEO_FORMATS, AspectRatio, ImageFormat, VideoFormat, GenerationOptions } from './types.js';
 import { ImageGenerator } from './imageGenerator.js';
+import { VideoGenerator } from './videoGenerator.js';
 
 export class CLI {
   private imageGenerator: ImageGenerator;
+  private videoGenerator: VideoGenerator;
 
   constructor() {
     this.imageGenerator = new ImageGenerator();
+    this.videoGenerator = new VideoGenerator();
   }
 
   private async displayWelcome(): Promise<void> {
     console.log(chalk.cyan('\n╔════════════════════════════════════════╗'));
     console.log(chalk.cyan('║       ARATIO-GEN - Media Generator     ║'));
-    console.log(chalk.cyan('║   Generate images with aspect ratios   ║'));
+    console.log(chalk.cyan('║  Generate images & videos with ratios  ║'));
     console.log(chalk.cyan('╚════════════════════════════════════════╝\n'));
+  }
+
+  private async selectMediaType(): Promise<'image' | 'video'> {
+    const mediaType = await select({
+      message: 'What type of media do you want to generate?',
+      choices: [
+        { name: '🖼️  Images', value: 'image' },
+        { name: '🎬  Videos (MP4)', value: 'video' },
+      ],
+    });
+
+    return mediaType as 'image' | 'video';
   }
 
   private async selectAspectRatios(): Promise<AspectRatio[]> {
@@ -73,6 +88,51 @@ export class CLI {
     return format;
   }
 
+  private async selectVideoFormat(): Promise<VideoFormat> {
+    const format = await select({
+      message: 'Select video format:',
+      choices: Object.entries(VIDEO_FORMATS).map(([key, value]) => ({
+        name: key,
+        value,
+      })),
+    });
+
+    return format;
+  }
+
+  private async selectVideoDuration(): Promise<number> {
+    const duration = await number({
+      message: 'Enter video duration (in seconds):',
+      default: 3,
+      min: 1,
+      max: 30,
+      validate: (value) => {
+        if (!value || value < 1) {
+          return 'Duration must be at least 1 second';
+        }
+        if (value > 30) {
+          return 'Duration must be at most 30 seconds';
+        }
+        return true;
+      },
+    });
+
+    return duration || 3;
+  }
+
+  private async selectVideoFps(): Promise<number> {
+    const fps = await select({
+      message: 'Select frames per second (FPS):',
+      choices: [
+        { name: '24 FPS (Cinematic)', value: 24 },
+        { name: '30 FPS (Standard)', value: 30 },
+        { name: '60 FPS (Smooth)', value: 60 },
+      ],
+    });
+
+    return fps;
+  }
+
   private async selectBaseWidth(): Promise<number> {
     const width = await number({
       message: 'Enter base width for images (in pixels):',
@@ -112,10 +172,15 @@ export class CLI {
 
   private displaySummary(options: GenerationOptions): void {
     console.log(chalk.yellow('\n📋 Generation Summary:'));
+    console.log(chalk.white(`  • Media Type: ${options.mediaType.toUpperCase()}`));
     console.log(chalk.white(`  • Aspect Ratios: ${options.aspectRatios.map(r => r.label).join(', ')}`));
     console.log(chalk.white(`  • Assets per ratio: ${options.numberOfAssets}`));
     console.log(chalk.white(`  • Format: ${options.format.extension.toUpperCase()}`));
     console.log(chalk.white(`  • Base width: ${options.baseWidth}px`));
+    if (options.mediaType === 'video') {
+      console.log(chalk.white(`  • Duration: ${options.videoDuration}s`));
+      console.log(chalk.white(`  • FPS: ${options.videoFps}`));
+    }
     console.log(chalk.white(`  • Output: ${options.outputDir}\n`));
   }
 
@@ -123,9 +188,22 @@ export class CLI {
     try {
       await this.displayWelcome();
 
+      const mediaType = await this.selectMediaType();
       const aspectRatios = await this.selectAspectRatios();
       const numberOfAssets = await this.selectNumberOfAssets();
-      const format = await this.selectImageFormat();
+      
+      let format: ImageFormat | VideoFormat;
+      let videoDuration: number | undefined;
+      let videoFps: number | undefined;
+      
+      if (mediaType === 'video') {
+        format = await this.selectVideoFormat();
+        videoDuration = await this.selectVideoDuration();
+        videoFps = await this.selectVideoFps();
+      } else {
+        format = await this.selectImageFormat();
+      }
+      
       const baseWidth = await this.selectBaseWidth();
       const outputDir = await this.selectOutputDirectory();
 
@@ -135,39 +213,56 @@ export class CLI {
         format,
         baseWidth,
         outputDir,
+        mediaType,
+        videoDuration,
+        videoFps,
       };
 
       this.displaySummary(options);
 
-      const totalImages = aspectRatios.length * numberOfAssets;
-      const spinner = ora(`Generating ${totalImages} images...`).start();
+      const totalAssets = aspectRatios.length * numberOfAssets;
+      const assetType = mediaType === 'video' ? 'videos' : 'images';
+      const spinner = ora(`Generating ${totalAssets} ${assetType}...`).start();
 
       const generatedFiles: string[] = [];
 
       for (const aspectRatio of aspectRatios) {
         for (let i = 0; i < numberOfAssets; i++) {
-          spinner.text = `Generating ${aspectRatio.label} image ${i + 1}/${numberOfAssets}...`;
+          spinner.text = `Generating ${aspectRatio.label} ${mediaType} ${i + 1}/${numberOfAssets}...`;
           
-          const filepath = await this.imageGenerator.generateImage(
-            aspectRatio,
-            baseWidth,
-            format,
-            outputDir,
-            i
-          );
+          let filepath: string;
+          if (mediaType === 'video') {
+            filepath = await this.videoGenerator.generateVideo(
+              aspectRatio,
+              baseWidth,
+              format as VideoFormat,
+              outputDir,
+              i,
+              videoDuration,
+              videoFps
+            );
+          } else {
+            filepath = await this.imageGenerator.generateImage(
+              aspectRatio,
+              baseWidth,
+              format as ImageFormat,
+              outputDir,
+              i
+            );
+          }
           
           generatedFiles.push(filepath);
         }
       }
 
-      spinner.succeed(chalk.green(`Successfully generated ${totalImages} images!`));
+      spinner.succeed(chalk.green(`Successfully generated ${totalAssets} ${assetType}!`));
 
       console.log(chalk.cyan('\n✨ Generated files:'));
       generatedFiles.forEach(file => {
         console.log(chalk.white(`  • ${path.basename(file)}`));
       });
 
-      console.log(chalk.green(`\n✅ All images saved to: ${outputDir}`));
+      console.log(chalk.green(`\n✅ All ${assetType} saved to: ${outputDir}`));
       console.log(chalk.yellow('\nThank you for using aratio-gen! 🎨\n'));
 
     } catch (error) {
