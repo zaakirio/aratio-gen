@@ -1,8 +1,11 @@
-import { createCanvas, CanvasRenderingContext2D } from 'canvas';
+import { createCanvas, SKRSContext2D } from '@napi-rs/canvas';
 import ffmpeg from 'fluent-ffmpeg';
+import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
 import fs from 'node:fs';
 import path from 'node:path';
 import { AspectRatio, VideoFormat } from './types.js';
+
+ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
 export class VideoGenerator {
   private generateRandomColor(): string {
@@ -13,7 +16,7 @@ export class VideoGenerator {
   }
 
   private createPixelShuffleFrame(
-    ctx: CanvasRenderingContext2D,
+    ctx: SKRSContext2D,
     width: number,
     height: number,
     frameNumber: number
